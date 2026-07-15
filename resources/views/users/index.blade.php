@@ -94,7 +94,7 @@
                                     <div style="display: flex; gap: var(--spacing-sm);">
                                         @if($user->role === 'manager' && ($user->status ?? 'active') === 'pending')
                                             {{-- Approve Button --}}
-                                            <form action="{{ route('admin.users.approve', $user->id) }}" method="POST"
+                                            <form action="{{ route('users.approve', $user->id) }}" method="POST"
                                                 style="margin:0;">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success"
@@ -103,7 +103,7 @@
                                                 </button>
                                             </form>
                                             {{-- Reject Button --}}
-                                            <form action="{{ route('admin.users.reject', $user->id) }}" method="POST"
+                                            <form action="{{ route('users.reject', $user->id) }}" method="POST"
                                                 style="margin:0;">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-danger"

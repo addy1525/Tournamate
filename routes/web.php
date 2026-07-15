@@ -62,8 +62,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class);
     
     // Manager Approval Routes (for /users page)
-    Route::post('/users/{id}/approve', [UserController::class, 'approve'])->name('admin.users.approve');
-    Route::post('/users/{id}/reject', [UserController::class, 'reject'])->name('admin.users.reject');
+    Route::post('/users/{id}/approve', [UserController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{id}/reject', [UserController::class, 'reject'])->name('users.reject');
 
     // Route untuk Operations Dashboard
     Route::get('/operations', [OperationsController::class, 'index'])->name('operations.index');

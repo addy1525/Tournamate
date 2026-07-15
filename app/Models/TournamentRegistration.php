@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class TournamentRegistration extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'tournament_id',
+        'team_id',
+        'pool_id',
+        'registered_category',
+        'manager_id',
+        'status',
+        'payment_intent_id',
+        'payment_status',
+        'amount_paid',
+        'registered_at',
+    ];
+
+    protected $casts = [
+        'amount_paid' => 'decimal:2',
+        'registered_at' => 'datetime',
+    ];
+
+    const STATUS_REGISTERING = 'registering';
+    const STATUS_CONFIRMED = 'confirmed';
+    const STATUS_CANCELLED = 'cancelled';
+
+    const PAYMENT_PENDING = 'pending';
+    const PAYMENT_PAID = 'paid';
+    const PAYMENT_FAILED = 'failed';
+
+    /**
+     * Get the tournament for this registration.
+     */
+    public function tournament()
+    {
+        return $this->belongsTo(Tournament::class);
+    }
+
+    /**
+     * Get the team for this registration.
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    /**
+     * Get the manager (user) for this registration.
+     */
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function pool()
+    {
+        return $this->belongsTo(Pool::class, 'pool_id');
+    }
+}

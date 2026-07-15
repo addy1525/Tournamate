@@ -9,6 +9,32 @@ class SafetyLog extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::created(function ($safetyLog) {
+            if (in_array($safetyLog->alert_level, [self::ALERT_WARNING, self::ALERT_DANGER])) {
+                try {
+                    $registrations = \App\Models\TournamentRegistration::where('tournament_id', $safetyLog->tournament_id)
+                        ->whereNotNull('manager_id')
+                        ->get();
+                    $managerIds = $registrations->pluck('manager_id')->unique()->toArray();
+                    
+                    $managers = \App\Models\User::whereIn('id', $managerIds)->get();
+                    foreach ($managers as $manager) {
+                        $manager->notify(new \App\Notifications\SafetyWarningNotification($safetyLog));
+                    }
+
+                    $referees = \App\Models\User::where('role', 'referee')->get();
+                    foreach ($referees as $referee) {
+                        $referee->notify(new \App\Notifications\SafetyWarningNotification($safetyLog));
+                    }
+                } catch (\Exception $ex) {
+                    \Log::error('Failed to send safety notifications from Model event: ' . $ex->getMessage());
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'tournament_id',
         'temperature',

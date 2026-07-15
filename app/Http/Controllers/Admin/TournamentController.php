@@ -59,7 +59,7 @@ class TournamentController extends Controller
         \App\Models\Tournament::create($data);
         $tournament = \App\Models\Tournament::latest()->first();
 
-        // ── Blast email to all active managers if tournament is upcoming ──
+        // ── Blast email & in-app notification to all active managers if tournament is upcoming ──
         if (($data['status'] ?? 'upcoming') === 'upcoming') {
             try {
                 $managers = User::where('role', 'manager')
@@ -68,6 +68,7 @@ class TournamentController extends Controller
 
                 foreach ($managers as $manager) {
                     Mail::to($manager->email)->send(new NewTournamentMail($tournament));
+                    $manager->notify(new \App\Notifications\UpcomingTournamentNotification($tournament));
                 }
             } catch (\Exception $mailEx) {
                 \Illuminate\Support\Facades\Log::error('Failed to send new tournament emails: ' . $mailEx->getMessage());
@@ -104,7 +105,20 @@ class TournamentController extends Controller
         $data['venue'] = $request->venue_name;
         $data['tournament_date'] = $request->start_date;
 
+        $oldStatus = $tournament->status;
         $tournament->update($data);
+
+        // Notify spectators and managers when a tournament starts (ongoing)
+        if ($oldStatus !== 'ongoing' && $tournament->status === 'ongoing') {
+            try {
+                $users = User::whereIn('role', ['spectator', 'manager'])->get();
+                foreach ($users as $user) {
+                    $user->notify(new \App\Notifications\TournamentStartedNotification($tournament));
+                }
+            } catch (\Exception $ex) {
+                \Illuminate\Support\Facades\Log::error('Failed to send tournament started notifications: ' . $ex->getMessage());
+            }
+        }
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament updated successfully.');
     }
@@ -810,6 +824,26 @@ class TournamentController extends Controller
         \App\Models\Fixture::where('tournament_id', $id)
             ->where('status', 'draft')
             ->update(['status' => 'scheduled']);
+
+        // Notify managers and referees
+        try {
+            $registrations = \App\Models\TournamentRegistration::where('tournament_id', $id)
+                ->whereNotNull('manager_id')
+                ->get();
+            $managerIds = $registrations->pluck('manager_id')->unique()->toArray();
+            
+            $managers = User::whereIn('id', $managerIds)->get();
+            foreach ($managers as $manager) {
+                $manager->notify(new \App\Notifications\FixturesPublishedNotification($tournament));
+            }
+
+            $referees = User::where('role', 'referee')->get();
+            foreach ($referees as $referee) {
+                $referee->notify(new \App\Notifications\FixturesPublishedNotification($tournament));
+            }
+        } catch (\Exception $ex) {
+            \Illuminate\Support\Facades\Log::error('Failed to send fixtures published notifications: ' . $ex->getMessage());
+        }
             
         return redirect()->back()->with('success', 'Fixtures have been published and are now visible to everyone.');
     }

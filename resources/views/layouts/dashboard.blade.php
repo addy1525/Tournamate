@@ -74,8 +74,65 @@
                     <h1 class="header-title">@yield('page-title', 'Dashboard')</h1>
                 </div>
 
-                <div class="header-right">
+                <div class="header-right" style="display: flex; align-items: center; gap: 1.5rem;">
                     @auth
+                        <!-- Notifications Dropdown -->
+                        <div class="dropdown notification-dropdown" style="position: relative;">
+                            <button class="btn btn-link position-relative" type="button" id="notificationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: var(--color-text-secondary); padding: 0; font-size: 1.25rem; text-decoration: none; border: none; background: transparent;">
+                                <i class="fas fa-bell"></i>
+                                @php
+                                    $unreadCount = Auth::user()->unreadNotifications->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="badge badge-danger position-absolute" style="top: -5px; right: -8px; font-size: 0.65rem; border-radius: 50%; padding: 3px 6px; line-height: 1; background: #ef4444;">
+                                        {{ $unreadCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px; overflow-y: auto; padding: 0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: var(--border-radius-lg); border: 1px solid var(--color-border); background: var(--color-bg-card);">
+                                <div class="dropdown-header" style="font-weight: 700; color: var(--color-text-primary); border-bottom: 1px solid var(--color-border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; background: var(--color-bg-tertiary);">
+                                    <span>Notifications</span>
+                                    @if($unreadCount > 0)
+                                        <form action="{{ route('notifications.markAllRead') }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-link p-0 text-success" style="font-size: 0.75rem; font-weight: 600; text-decoration: none; border: none; background: transparent;">Mark all as read</button>
+                                        </form>
+                                    @endif
+                                </div>
+                                <div class="dropdown-body" style="padding: 0;">
+                                    @if(Auth::user()->notifications->count() > 0)
+                                        @foreach(Auth::user()->notifications->take(5) as $notification)
+                                            <div class="dropdown-item d-flex align-items-start {{ $notification->read_at ? '' : 'unread' }}" style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); white-space: normal; cursor: pointer; transition: background 0.2s; background: {{ $notification->read_at ? 'transparent' : 'rgba(0, 168, 107, 0.05)' }};" onclick="window.location='{{ $notification->data['url'] ?? '#' }}'">
+                                                <div style="margin-right: 12px; color: {{ $notification->data['color'] ?? 'var(--color-electric-blue)' }}; font-size: 1rem;">
+                                                    <i class="{{ $notification->data['icon'] ?? 'fas fa-info-circle' }}"></i>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 0.85rem; font-weight: {{ $notification->read_at ? '500' : '700' }}; color: var(--color-text-primary); margin-bottom: 2px;">
+                                                        {{ $notification->data['title'] ?? 'Notification' }}
+                                                    </div>
+                                                    <div style="font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.3; margin-bottom: 4px;">
+                                                        {{ $notification->data['message'] ?? '' }}
+                                                    </div>
+                                                    <div style="font-size: 0.65rem; color: var(--color-text-tertiary);">
+                                                        {{ $notification->created_at->diffForHumans() }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div style="padding: 24px; text-align: center; color: var(--color-text-tertiary);">
+                                            <i class="fas fa-bell-slash" style="font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
+                                            <span style="font-size: 0.85rem;">No notifications yet</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="dropdown-footer text-center" style="border-top: 1px solid var(--color-border); padding: 10px 16px;">
+                                    <a href="{{ route('notifications.index') }}" style="font-size: 0.75rem; font-weight: 600; color: var(--color-electric-blue); text-decoration: none; display: block;">View all notifications</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
                         <div class="user-profile">
                             <img src="{{ Auth::user()->avatar ?? asset('images/default-avatar.png') }}" alt="User Avatar"
                                 class="user-avatar"

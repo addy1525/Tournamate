@@ -77,6 +77,10 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
 
+    // Notifications Module
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+
 });
 
 // ============================================

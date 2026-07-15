@@ -43,9 +43,10 @@ class UserController extends Controller
         $manager->status = \App\Models\User::STATUS_ACTIVE;
         $manager->save();
 
-        // Send status email via Brevo SMTP
+        // Send status email via Brevo SMTP & In-app Notification
         try {
             Mail::to($manager->email)->send(new ManagerStatusMail($manager, 'approved'));
+            $manager->notify(new \App\Notifications\ManagerApprovedNotification($manager));
         } catch (\Exception $e) {
             report($e);
         }

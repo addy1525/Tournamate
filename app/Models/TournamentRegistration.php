@@ -9,6 +9,24 @@ class TournamentRegistration extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::saved(function ($registration) {
+            $wasJustPaid = $registration->wasRecentlyCreated && $registration->payment_status === self::PAYMENT_PAID;
+            $didChangeToPaid = !$registration->wasRecentlyCreated && $registration->isDirty('payment_status') && $registration->payment_status === self::PAYMENT_PAID;
+
+            if ($wasJustPaid || $didChangeToPaid) {
+                try {
+                    if ($registration->manager) {
+                        $registration->manager->notify(new \App\Notifications\PaymentSuccessfulNotification($registration));
+                    }
+                } catch (\Exception $ex) {
+                    \Log::error('Failed to send payment success notification from registration saved event: ' . $ex->getMessage());
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'tournament_id',
         'team_id',

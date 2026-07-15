@@ -74,7 +74,6 @@ class StripeWebhookController extends Controller
                                 ->send(new PaymentReceiptMail($registration));
                             Log::info("Payment receipt email sent to {$registration->manager->email} for registration #{$registrationId}.");
                         } catch (\Exception $mailEx) {
-                            // Don't fail the webhook if email fails — just log it
                             Log::error("Failed to send payment receipt email for registration #{$registrationId}: " . $mailEx->getMessage());
                         }
                     }

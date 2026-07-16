@@ -18,10 +18,17 @@ class TournamentRegistration extends Model
             if ($wasJustPaid || $didChangeToPaid) {
                 try {
                     if ($registration->manager) {
+                        // 1. Send database/in-app notification
                         $registration->manager->notify(new \App\Notifications\PaymentSuccessfulNotification($registration));
+
+                        // 2. Send email receipt
+                        if ($registration->manager->email) {
+                            \Illuminate\Support\Facades\Mail::to($registration->manager->email)
+                                ->send(new \App\Mail\PaymentReceiptMail($registration));
+                        }
                     }
                 } catch (\Exception $ex) {
-                    \Log::error('Failed to send payment success notification from registration saved event: ' . $ex->getMessage());
+                    \Log::error('Failed to send payment success notification/email from registration saved event: ' . $ex->getMessage());
                 }
             }
         });

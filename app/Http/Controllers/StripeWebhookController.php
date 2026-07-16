@@ -67,17 +67,6 @@ class StripeWebhookController extends Controller
                         ]);
                     }
 
-                    // ── Send payment receipt email to manager ──────────────────
-                    if ($registration->manager && $registration->manager->email) {
-                        try {
-                            Mail::to($registration->manager->email)
-                                ->send(new PaymentReceiptMail($registration));
-                            Log::info("Payment receipt email sent to {$registration->manager->email} for registration #{$registrationId}.");
-                        } catch (\Exception $mailEx) {
-                            Log::error("Failed to send payment receipt email for registration #{$registrationId}: " . $mailEx->getMessage());
-                        }
-                    }
-
                     Log::info("Stripe Webhook: Registration #{$registrationId} updated to CONFIRMED & PAID.");
                 } else {
                     Log::error("Stripe Webhook: Registration #{$registrationId} not found in database.");

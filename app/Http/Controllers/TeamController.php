@@ -10,11 +10,16 @@ class TeamController extends Controller
     public function index()
     {
         if (auth()->user() && auth()->user()->role === \App\Models\User::ROLE_ADMIN) {
-            $teams = Team::all();
+            // For Admin: Get all tournament registrations with relations
+            $registrations = \App\Models\TournamentRegistration::with(['team', 'tournament', 'manager'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+            return view('teams.index', compact('registrations'));
         } else {
+            // For Manager: Get their team profiles
             $teams = Team::where('manager_id', auth()->id())->get();
+            return view('teams.index', compact('teams'));
         }
-        return view('teams.index', compact('teams'));
     }
 
     public function create()

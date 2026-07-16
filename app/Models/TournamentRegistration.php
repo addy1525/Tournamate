@@ -12,10 +12,10 @@ class TournamentRegistration extends Model
     protected static function booted()
     {
         static::saved(function ($registration) {
-            $wasJustPaid = $registration->wasRecentlyCreated && $registration->payment_status === self::PAYMENT_PAID;
-            $didChangeToPaid = !$registration->wasRecentlyCreated && $registration->isDirty('payment_status') && $registration->payment_status === self::PAYMENT_PAID;
+            $isPaidNow = ($registration->payment_status === self::PAYMENT_PAID) && 
+                         ($registration->wasRecentlyCreated || $registration->wasChanged('payment_status'));
 
-            if ($wasJustPaid || $didChangeToPaid) {
+            if ($isPaidNow) {
                 try {
                     if ($registration->manager) {
                         // 1. Send database/in-app notification

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Mail\ManagerStatusMail;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -80,9 +82,6 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
     }
 
-    /**
-     * Approve a pending manager.
-     */
     public function approve($id)
     {
         $manager = User::findOrFail($id);
@@ -100,6 +99,14 @@ class UserController extends Controller
         // Update status to active
         $manager->status = 'active';
         $manager->save();
+
+        // Send status email via Brevo SMTP & In-app Notification
+        try {
+            Mail::to($manager->email)->send(new ManagerStatusMail($manager, 'approved'));
+            $manager->notify(new \App\Notifications\ManagerApprovedNotification($manager));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send manager approved email/notification: ' . $e->getMessage());
+        }
 
         // Log activity
         \App\Models\Activity::create([
@@ -125,6 +132,13 @@ class UserController extends Controller
 
         $manager->status = 'inactive';
         $manager->save();
+
+        // Send status email via Brevo SMTP
+        try {
+            Mail::to($manager->email)->send(new ManagerStatusMail($manager, 'rejected'));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send manager rejected email: ' . $e->getMessage());
+        }
 
         // Log activity
         \App\Models\Activity::create([

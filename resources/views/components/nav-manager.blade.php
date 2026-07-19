@@ -16,6 +16,13 @@
                 <span class="nav-badge" style="background: var(--color-rugby-green);">New</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('manager.my-applications') }}"
+                class="nav-link {{ request()->routeIs('manager.my-applications') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+                <span class="nav-text">My Applications</span>
+            </a>
+        </li>
     </ul>
 </div>
 

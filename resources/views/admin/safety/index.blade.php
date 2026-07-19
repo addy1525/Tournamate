@@ -64,7 +64,7 @@
 .gauge-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; overflow: visible; }
 .gauge-svg  { width: 100%; height: 100%; overflow: visible; }
 .gauge-bg   { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 12; }
-.gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
+.safety-gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
 .gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .gauge-val  { font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; }
 .gauge-unit { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 600; }
@@ -247,7 +247,7 @@
                         </filter>
                     </defs>
                     <circle class="gauge-bg" cx="100" cy="100" r="80"/>
-                    <circle class="gauge-fill" cx="100" cy="100" r="80"
+                    <circle class="safety-gauge-fill" cx="100" cy="100" r="80"
                             stroke="{{ $wColor }}"
                             transform="rotate(-90 100 100)"
                             style="stroke-dasharray:{{ $wPct * 5.03 }} 503;"
@@ -273,7 +273,7 @@
                         </filter>
                     </defs>
                     <circle class="gauge-bg" cx="100" cy="100" r="80"/>
-                    <circle class="gauge-fill" cx="100" cy="100" r="80"
+                    <circle class="safety-gauge-fill" cx="100" cy="100" r="80"
                             stroke="{{ $lColor }}"
                             transform="rotate(-90 100 100)"
                             style="stroke-dasharray:{{ $lPct * 5.03 }} 503;"

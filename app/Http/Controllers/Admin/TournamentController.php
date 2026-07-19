@@ -133,7 +133,8 @@ class TournamentController extends Controller
     public function assignTeams($id)
     {
         $tournament = \App\Models\Tournament::findOrFail($id);
-        $teams = \App\Models\Team::all();
+        // Only get teams that have a valid, existing manager (excludes orphaned profiles)
+        $teams = \App\Models\Team::has('manager')->get();
         return view('admin.tournaments.assign-teams', compact('tournament', 'teams'));
     }
 

@@ -37,6 +37,7 @@ class SafetyCenterController extends Controller
 
         $latestLog = null;
         $logs = collect();
+        $trendLogs = collect();
 
         if ($selectedTournament) {
             $latestLog = \App\Models\SafetyLog::where('tournament_id', $selectedTournament->id)
@@ -47,9 +48,17 @@ class SafetyCenterController extends Controller
                 ->latest()
                 ->limit(10)
                 ->get();
+
+            // Last 10 readings chronologically for chart (oldest first)
+            $trendLogs = \App\Models\SafetyLog::where('tournament_id', $selectedTournament->id)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->reverse()
+                ->values();
         }
 
-        return view('admin.safety.index', compact('latestLog', 'logs', 'tournaments', 'selectedTournament'));
+        return view('admin.safety.index', compact('latestLog', 'logs', 'trendLogs', 'tournaments', 'selectedTournament'));
     }
 
     /**

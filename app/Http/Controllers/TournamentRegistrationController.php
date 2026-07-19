@@ -294,6 +294,16 @@ class TournamentRegistrationController extends Controller
                 'receipt_path' => $path,
             ]);
 
+            // Notify all admin users
+            try {
+                $admins = \App\Models\User::where('role', \App\Models\User::ROLE_ADMIN ?? 'admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\PaymentReceiptUploadedNotification($registration));
+                }
+            } catch (\Exception $notifEx) {
+                \Log::error('Failed to notify admins of uploaded receipt: ' . $notifEx->getMessage());
+            }
+
             return redirect()->back()->with('success', 'Receipt uploaded successfully! The organizer/admin will verify your payment shortly.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to upload receipt: ' . $e->getMessage());

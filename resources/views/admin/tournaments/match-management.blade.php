@@ -375,6 +375,12 @@
 
 @section('content')
 
+<div class="mb-4">
+    <a href="{{ route('admin.tournaments.index') }}" class="btn btn-premium" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--zinc-300);">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Tournaments
+    </a>
+</div>
+
 <!-- Stats Row -->
 @php
     $totalPools = $tournament->pools->count();

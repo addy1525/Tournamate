@@ -24,17 +24,17 @@ class SafetyWarningNotification extends Notification
 
     public function toArray($notifiable): array
     {
-        $status = $this->safetyLog->status ?? 'warning';
+        $status = $this->safetyLog->alert_level ?? 'warning';
         $icon = $status === 'danger' ? 'fas fa-exclamation-triangle' : 'fas fa-cloud-sun-rain';
         $color = $status === 'danger' ? '#ef4444' : '#f59e0b';
         $title = $status === 'danger' ? '⚠️ CRITICAL Safety Alert' : '⚠️ Weather Alert';
 
         return [
             'title' => $title,
-            'message' => 'Safety update: ' . ($this->safetyLog->remarks ?? 'Weather conditions updated. Please check the safety logs.'),
+            'message' => 'Safety update: ' . ($this->safetyLog->notes ?? 'Weather conditions updated. Please check the safety logs.'),
             'icon' => $icon,
             'color' => $color,
-            'url' => route('operations.index'), // Will redirect to safety/operations view
+            'url' => route('shared.venue-map') . '?tournament_id=' . $this->safetyLog->tournament_id,
         ];
     }
 }

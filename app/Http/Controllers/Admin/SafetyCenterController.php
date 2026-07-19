@@ -103,6 +103,16 @@ class SafetyCenterController extends Controller
                 \Log::error('Failed to broadcast safety alert: ' . $e->getMessage());
             }
 
+            // Send in-app database notification to all users
+            try {
+                $users = \App\Models\User::all();
+                foreach ($users as $user) {
+                    $user->notify(new \App\Notifications\SafetyWarningNotification($log));
+                }
+            } catch (\Exception $notifEx) {
+                \Log::error('Failed to dispatch safety notifications during weather refresh: ' . $notifEx->getMessage());
+            }
+
             return redirect()->route('admin.safety.index', ['tournament_id' => $tournament->id])
                 ->with('success', "Weather data updated successfully for {$locationName}!");
         } catch (\Exception $e) {
@@ -143,6 +153,16 @@ class SafetyCenterController extends Controller
             broadcast(new \App\Events\SafetyAlertBroadcast($log->load('tournament')));
         } catch (\Exception $e) {
             \Log::error('Failed to broadcast manual safety alert: ' . $e->getMessage());
+        }
+
+        // Send in-app database notification to all users
+        try {
+            $users = \App\Models\User::all();
+            foreach ($users as $user) {
+                $user->notify(new \App\Notifications\SafetyWarningNotification($log));
+            }
+        } catch (\Exception $notifEx) {
+            \Log::error('Failed to dispatch safety notifications during manual entry: ' . $notifEx->getMessage());
         }
 
         return redirect()->route('admin.safety.index', ['tournament_id' => $request->tournament_id])

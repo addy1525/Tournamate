@@ -61,10 +61,10 @@
 }
 
 /* ── Circular Gauges ────────────────────────────────── */
-.gauge-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; }
-.gauge-svg  { width: 100%; height: 100%; transform: rotate(-90deg); }
-.gauge-bg   { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 13; }
-.gauge-fill { fill: none; stroke-width: 13; stroke-linecap: round; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); filter: drop-shadow(0 0 6px currentColor); }
+.gauge-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; overflow: visible; }
+.gauge-svg  { width: 100%; height: 100%; overflow: visible; }
+.gauge-bg   { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 12; }
+.gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
 .gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .gauge-val  { font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; }
 .gauge-unit { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 600; }
@@ -239,10 +239,19 @@
         @php $wbgt = $latestLog?->wbgt ?? 0; $wPct = min(($wbgt/40)*100,100); $wColor = $wbgt>=32?'#ef4444':($wbgt>=28?'#f59e0b':'#10b981'); @endphp
         <div style="text-align:center; flex:0 0 160px;">
             <div class="gauge-wrap">
-                <svg class="gauge-svg" viewBox="0 0 200 200">
+                <svg class="gauge-svg" viewBox="0 0 200 200" overflow="visible">
+                    <defs>
+                        <filter id="glow-wbgt" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
                     <circle class="gauge-bg" cx="100" cy="100" r="80"/>
-                    <circle class="gauge-fill" cx="100" cy="100" r="80" stroke="{{ $wColor }}"
-                            style="stroke-dasharray:{{ $wPct * 5.03 }} 503;"/>
+                    <circle class="gauge-fill" cx="100" cy="100" r="80"
+                            stroke="{{ $wColor }}"
+                            transform="rotate(-90 100 100)"
+                            style="stroke-dasharray:{{ $wPct * 5.03 }} 503;"
+                            filter="url(#glow-wbgt)"/>
                 </svg>
                 <div class="gauge-center">
                     <div class="gauge-val">{{ number_format($wbgt,1) }}</div>
@@ -256,10 +265,19 @@
         @php $lght = $latestLog?->lightning_risk ?? 50; $lPct = min(($lght/50)*100,100); $lColor = $lght<=10?'#ef4444':($lght<=15?'#f59e0b':'#10b981'); @endphp
         <div style="text-align:center; flex:0 0 160px;">
             <div class="gauge-wrap">
-                <svg class="gauge-svg" viewBox="0 0 200 200">
+                <svg class="gauge-svg" viewBox="0 0 200 200" overflow="visible">
+                    <defs>
+                        <filter id="glow-lght" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
                     <circle class="gauge-bg" cx="100" cy="100" r="80"/>
-                    <circle class="gauge-fill" cx="100" cy="100" r="80" stroke="{{ $lColor }}"
-                            style="stroke-dasharray:{{ $lPct * 5.03 }} 503;"/>
+                    <circle class="gauge-fill" cx="100" cy="100" r="80"
+                            stroke="{{ $lColor }}"
+                            transform="rotate(-90 100 100)"
+                            style="stroke-dasharray:{{ $lPct * 5.03 }} 503;"
+                            filter="url(#glow-lght)"/>
                 </svg>
                 <div class="gauge-center">
                     <div class="gauge-val">{{ $lght < 50 ? number_format($lght,1) : '50+' }}</div>

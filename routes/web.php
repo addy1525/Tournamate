@@ -317,5 +317,15 @@ Route::prefix('shared')->name('shared.')->middleware(['auth'])->group(function (
     Route::get('/info', [App\Http\Controllers\SpectatorController::class, 'info'])->name('info');
 });
 
+// Temporary migration route to run migrations via web browser
+Route::get('/run-migrate-temp', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate');
+        return 'Migration successful:<br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Migration failed: ' . $e->getMessage();
+    }
+});
+
 // Stripe Webhook Endpoint (Exempt from CSRF & Auth Middleware)
 Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');

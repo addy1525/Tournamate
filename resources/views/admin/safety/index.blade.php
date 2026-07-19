@@ -174,54 +174,44 @@
     }
 @endphp
 
-{{-- ════════════════════════════════════════════════════
-     PAGE HEADER
-═════════════════════════════════════════════════════ --}}
-<div class="d-flex align-items-center justify-content-between flex-wrap mb-4" style="gap:1rem;">
-    <div>
-        <p class="mb-0" style="color:rgba(255,255,255,0.45); font-size:0.82rem;">
-            <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}" style="margin-right:8px;"></span>
-            <i class="fas fa-shield-halved mr-1"></i>
-            World Rugby Safety Protocol · Real-time WBGT & Lightning Monitoring
-        </p>
-    </div>
-    <div class="d-flex align-items-center" style="gap:10px; flex-wrap:wrap;">
-        @if($tournaments->count() > 0)
-            <select style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:#fff; padding:8px 14px; font-size:0.82rem; font-weight:600; cursor:pointer;" onchange="window.location.href='?tournament_id='+this.value">
-                @foreach($tournaments as $t)
-                    <option value="{{ $t->id }}" {{ $selectedTournament && $selectedTournament->id == $t->id ? 'selected' : '' }} style="background:#1e293b;">
-                        🏆 {{ $t->name }}
-                    </option>
-                @endforeach
-            </select>
-        @endif
-        <form action="{{ route('admin.safety.refresh') }}" method="POST" class="d-inline">
-            @csrf
-            <input type="hidden" name="tournament_id" value="{{ $selectedTournament->id ?? '' }}">
-            <button type="submit" class="btn-glow-blue" {{ !$selectedTournament ? 'disabled' : '' }}>
-                <i class="fas fa-sync-alt mr-1"></i> Refresh API Data
-            </button>
-        </form>
-    </div>
-</div>
+{{-- Controls toolbar replaced into status card header below --}}
 
 {{-- ════════════════════════════════════════════════════
      ROW 1 — HERO STATUS PANEL
 ═════════════════════════════════════════════════════ --}}
 <div class="glass {{ $levelClass }} mb-4 p-0" style="overflow:hidden;">
-    <div class="glass-header" style="background:rgba(0,0,0,0.15);">
-        <div class="header-icon" style="background:{{ $levelColor }}25;">
+    <div class="glass-header" style="background:rgba(0,0,0,0.15); flex-wrap:wrap; gap:10px;">
+        <div class="header-icon" style="background:{{ $levelColor }}25; flex-shrink:0;">
             <i class="fas {{ $levelIcon }}" style="color:{{ $levelColor }};"></i>
         </div>
-        <h3>Current Safety Status:
-            <span style="color:{{ $levelColor }};">{{ strtoupper($level) }}</span>
-        </h3>
-        @if($latestLog)
-            <span style="margin-left:auto; font-size:0.75rem; color:rgba(255,255,255,0.35); font-weight:400;">
-                <i class="far fa-clock mr-1"></i>
-                Last updated {{ $latestLog->created_at->diffForHumans() }}
-            </span>
-        @endif
+        <div>
+            <h3 style="margin:0;">Current Safety Status:
+                <span style="color:{{ $levelColor }};">{{ strtoupper($level) }}</span>
+            </h3>
+            <p style="margin:2px 0 0; font-size:0.72rem; color:rgba(255,255,255,0.35); display:flex; align-items:center; gap:6px;">
+                <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}"></span>
+                World Rugby Safety Protocol &middot; Real-time WBGT & Lightning Monitoring
+                @if($latestLog)
+                    &middot; <i class="far fa-clock"></i> {{ $latestLog->created_at->diffForHumans() }}
+                @endif
+            </p>
+        </div>
+        <div class="d-flex align-items-center" style="margin-left:auto; gap:8px; flex-wrap:wrap;">
+            @if($tournaments->count() > 0)
+                <select style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#fff; padding:7px 12px; font-size:0.78rem; font-weight:600; cursor:pointer; outline:none;" onchange="window.location.href='?tournament_id='+this.value">
+                    @foreach($tournaments as $t)
+                        <option value="{{ $t->id }}" {{ $selectedTournament && $selectedTournament->id == $t->id ? 'selected' : '' }} style="background:#1e293b;">🏆 {{ $t->name }}</option>
+                    @endforeach
+                </select>
+            @endif
+            <form action="{{ route('admin.safety.refresh') }}" method="POST" class="d-inline">
+                @csrf
+                <input type="hidden" name="tournament_id" value="{{ $selectedTournament->id ?? '' }}">
+                <button type="submit" class="btn-glow-blue" style="padding:7px 16px; font-size:0.78rem;" {{ !$selectedTournament ? 'disabled' : '' }}>
+                    <i class="fas fa-sync-alt mr-1"></i> Refresh API
+                </button>
+            </form>
+        </div>
     </div>
     <div class="row m-0 p-3" style="gap:0;">
         {{-- WBGT Gauge --}}

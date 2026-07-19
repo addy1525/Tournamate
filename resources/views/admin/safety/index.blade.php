@@ -31,6 +31,20 @@
 .glass-header h3 { margin: 0; font-size: 0.95rem; font-weight: 700; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.06em; }
 .glass-header .header-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
 
+/* Status card hero header — two rows */
+.status-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: rgba(0,0,0,0.15);
+}
+.status-header-row1 {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+}
+.status-header-row2 {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
 /* ── Alert Glow Borders ─────────────────────────────── */
 .border-safe    { border-top: 3px solid var(--safe);    box-shadow: 0 0 35px rgba(16,185,129,0.2),  0 8px 32px rgba(0,0,0,0.4); }
 .border-caution { border-top: 3px solid var(--caution); box-shadow: 0 0 35px rgba(59,130,246,0.2),  0 8px 32px rgba(0,0,0,0.4); }
@@ -180,23 +194,28 @@
      ROW 1 — HERO STATUS PANEL
 ═════════════════════════════════════════════════════ --}}
 <div class="glass {{ $levelClass }} mb-4 p-0" style="overflow:hidden;">
-    <div class="glass-header" style="background:rgba(0,0,0,0.15); flex-wrap:wrap; gap:10px;">
-        <div class="header-icon" style="background:{{ $levelColor }}25; flex-shrink:0;">
-            <i class="fas {{ $levelIcon }}" style="color:{{ $levelColor }};"></i>
+    <div class="status-card-header">
+        {{-- Row 1: Icon + Title + Timestamp --}}
+        <div class="status-header-row1">
+            <div class="header-icon" style="background:{{ $levelColor }}25; width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;">
+                <i class="fas {{ $levelIcon }}" style="color:{{ $levelColor }};"></i>
+            </div>
+            <div>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:#f1f5f9; text-transform:uppercase; letter-spacing:0.06em;">
+                    Current Safety Status:
+                    <span style="color:{{ $levelColor }};">{{ strtoupper($level) }}</span>
+                </h3>
+                <p style="margin:2px 0 0; font-size:0.72rem; color:rgba(255,255,255,0.35); display:flex; align-items:center; gap:6px;">
+                    <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}"></span>
+                    World Rugby Safety Protocol &middot; Real-time WBGT & Lightning Monitoring
+                    @if($latestLog)
+                        &middot; <i class="far fa-clock"></i> {{ $latestLog->created_at->diffForHumans() }}
+                    @endif
+                </p>
+            </div>
         </div>
-        <div>
-            <h3 style="margin:0;">Current Safety Status:
-                <span style="color:{{ $levelColor }};">{{ strtoupper($level) }}</span>
-            </h3>
-            <p style="margin:2px 0 0; font-size:0.72rem; color:rgba(255,255,255,0.35); display:flex; align-items:center; gap:6px;">
-                <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}"></span>
-                World Rugby Safety Protocol &middot; Real-time WBGT & Lightning Monitoring
-                @if($latestLog)
-                    &middot; <i class="far fa-clock"></i> {{ $latestLog->created_at->diffForHumans() }}
-                @endif
-            </p>
-        </div>
-        <div class="d-flex align-items-center" style="margin-left:auto; gap:8px; flex-wrap:wrap;">
+        {{-- Row 2: Tournament Selector + Refresh Button --}}
+        <div class="status-header-row2">
             @if($tournaments->count() > 0)
                 <select style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#fff; padding:7px 12px; font-size:0.78rem; font-weight:600; cursor:pointer; outline:none;" onchange="window.location.href='?tournament_id='+this.value">
                     @foreach($tournaments as $t)
@@ -208,7 +227,7 @@
                 @csrf
                 <input type="hidden" name="tournament_id" value="{{ $selectedTournament->id ?? '' }}">
                 <button type="submit" class="btn-glow-blue" style="padding:7px 16px; font-size:0.78rem;" {{ !$selectedTournament ? 'disabled' : '' }}>
-                    <i class="fas fa-sync-alt mr-1"></i> Refresh API
+                    <i class="fas fa-sync-alt mr-1"></i> Refresh API Data
                 </button>
             </form>
         </div>

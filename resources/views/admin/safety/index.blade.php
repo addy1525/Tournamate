@@ -213,13 +213,15 @@
             </form>
         </div>
     </div>
-    <div class="row m-0 p-3" style="gap:0;">
+    {{-- Status Card Body --}}
+    <div style="display:flex; flex-wrap:wrap; align-items:center; padding:1rem 1.5rem 1.5rem; gap:1rem;">
+
         {{-- WBGT Gauge --}}
-        <div class="col-6 col-md-3 py-3 text-center">
-            @php $wbgt = $latestLog?->wbgt ?? 0; $wPct = min(($wbgt/40)*100,100); $wColor = $wbgt>=32?'#ef4444':($wbgt>=28?'#f59e0b':'#10b981'); @endphp
+        @php $wbgt = $latestLog?->wbgt ?? 0; $wPct = min(($wbgt/40)*100,100); $wColor = $wbgt>=32?'#ef4444':($wbgt>=28?'#f59e0b':'#10b981'); @endphp
+        <div style="text-align:center; flex:0 0 160px;">
             <div class="gauge-wrap">
                 <svg class="gauge-svg" viewBox="0 0 200 200">
-                    <circle class="gauge-bg"   cx="100" cy="100" r="80"/>
+                    <circle class="gauge-bg" cx="100" cy="100" r="80"/>
                     <circle class="gauge-fill" cx="100" cy="100" r="80" stroke="{{ $wColor }}"
                             style="stroke-dasharray:{{ $wPct * 5.03 }} 503;"/>
                 </svg>
@@ -230,12 +232,13 @@
                 </div>
             </div>
         </div>
+
         {{-- Lightning Gauge --}}
-        <div class="col-6 col-md-3 py-3 text-center">
-            @php $lght = $latestLog?->lightning_risk ?? 50; $lPct = min(($lght/50)*100,100); $lColor = $lght<=10?'#ef4444':($lght<=15?'#f59e0b':'#10b981'); @endphp
+        @php $lght = $latestLog?->lightning_risk ?? 50; $lPct = min(($lght/50)*100,100); $lColor = $lght<=10?'#ef4444':($lght<=15?'#f59e0b':'#10b981'); @endphp
+        <div style="text-align:center; flex:0 0 160px;">
             <div class="gauge-wrap">
                 <svg class="gauge-svg" viewBox="0 0 200 200">
-                    <circle class="gauge-bg"   cx="100" cy="100" r="80"/>
+                    <circle class="gauge-bg" cx="100" cy="100" r="80"/>
                     <circle class="gauge-fill" cx="100" cy="100" r="80" stroke="{{ $lColor }}"
                             style="stroke-dasharray:{{ $lPct * 5.03 }} 503;"/>
                 </svg>
@@ -246,41 +249,36 @@
                 </div>
             </div>
         </div>
+
+        {{-- Divider --}}
+        <div style="width:1px; align-self:stretch; background:rgba(255,255,255,0.07); flex-shrink:0; margin:0 0.5rem;"></div>
+
         {{-- Metric Mini Cards --}}
-        <div class="col-md-6 py-3">
-            <div class="row m-0" style="gap:10px; height:100%; align-content:center;">
-                <div class="col-5 p-0">
-                    <div class="metric">
-                        <i class="fas fa-temperature-high" style="color:#f87171; font-size:1.25rem;"></i>
-                        <div class="metric-val">{{ $latestLog ? number_format($latestLog->temperature,1).'°C' : 'N/A' }}</div>
-                        <div class="metric-lbl">Temperature</div>
-                    </div>
-                </div>
-                <div class="col-5 p-0">
-                    <div class="metric">
-                        <i class="fas fa-droplet" style="color:#60a5fa; font-size:1.25rem;"></i>
-                        <div class="metric-val">{{ $latestLog ? number_format($latestLog->humidity,0).'%' : 'N/A' }}</div>
-                        <div class="metric-lbl">Humidity</div>
-                    </div>
-                </div>
-                <div class="col-5 p-0">
-                    <div class="metric">
-                        <i class="fas fa-wind" style="color:#a78bfa; font-size:1.25rem;"></i>
-                        <div class="metric-val">{{ $latestLog ? number_format($latestLog->wind_speed,1).' km/h' : 'N/A' }}</div>
-                        <div class="metric-lbl">Wind Speed</div>
-                    </div>
-                </div>
-                <div class="col-5 p-0">
-                    <div class="metric">
-                        <i class="fas fa-bolt" style="color:#fbbf24; font-size:1.25rem;"></i>
-                        <div class="metric-val" style="color:{{ $levelColor }};">{{ strtoupper($level) }}</div>
-                        <div class="metric-lbl">Alert Level</div>
-                    </div>
-                </div>
+        <div style="flex:1; min-width:260px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="metric">
+                <i class="fas fa-temperature-high" style="color:#f87171; font-size:1.2rem;"></i>
+                <div class="metric-val">{{ $latestLog ? number_format($latestLog->temperature,1).'°C' : 'N/A' }}</div>
+                <div class="metric-lbl">Temperature</div>
+            </div>
+            <div class="metric">
+                <i class="fas fa-droplet" style="color:#60a5fa; font-size:1.2rem;"></i>
+                <div class="metric-val">{{ $latestLog ? number_format($latestLog->humidity,0).'%' : 'N/A' }}</div>
+                <div class="metric-lbl">Humidity</div>
+            </div>
+            <div class="metric">
+                <i class="fas fa-wind" style="color:#a78bfa; font-size:1.2rem;"></i>
+                <div class="metric-val">{{ $latestLog ? number_format($latestLog->wind_speed,1).' km/h' : 'N/A' }}</div>
+                <div class="metric-lbl">Wind Speed</div>
+            </div>
+            <div class="metric">
+                <i class="fas fa-bolt" style="color:#fbbf24; font-size:1.2rem;"></i>
+                <div class="metric-val" style="color:{{ $levelColor }};">{{ strtoupper($level) }}</div>
+                <div class="metric-lbl">Alert Level</div>
             </div>
         </div>
     </div>
 </div>
+
 
 {{-- ════════════════════════════════════════════════════
      ROW 2 — TREND CHART  |  LIGHTNING TIMER

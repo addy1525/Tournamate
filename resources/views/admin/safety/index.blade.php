@@ -241,7 +241,7 @@
             <div class="gauge-wrap">
                 <svg class="gauge-svg" viewBox="0 0 200 200" overflow="visible">
                     <defs>
-                        <filter id="glow-wbgt" x="-30%" y="-30%" width="160%" height="160%">
+                        <filter id="glow-wbgt" filterUnits="userSpaceOnUse" x="-50" y="-50" width="300" height="300">
                             <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
                             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                         </filter>
@@ -267,7 +267,7 @@
             <div class="gauge-wrap">
                 <svg class="gauge-svg" viewBox="0 0 200 200" overflow="visible">
                     <defs>
-                        <filter id="glow-lght" x="-30%" y="-30%" width="160%" height="160%">
+                        <filter id="glow-lght" filterUnits="userSpaceOnUse" x="-50" y="-50" width="300" height="300">
                             <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
                             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                         </filter>

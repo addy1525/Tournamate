@@ -179,11 +179,8 @@
 ═════════════════════════════════════════════════════ --}}
 <div class="d-flex align-items-center justify-content-between flex-wrap mb-4" style="gap:1rem;">
     <div>
-        <h1 class="text-white font-weight-bold mb-1" style="font-size:1.5rem;">
-            <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}" style="margin-right:10px;"></span>
-            Safety & Weather Operations
-        </h1>
         <p class="mb-0" style="color:rgba(255,255,255,0.45); font-size:0.82rem;">
+            <span class="pulse-live {{ in_array($level,['danger','warning']) ? 'red' : '' }}" style="margin-right:8px;"></span>
             <i class="fas fa-shield-halved mr-1"></i>
             World Rugby Safety Protocol · Real-time WBGT & Lightning Monitoring
         </p>
@@ -207,17 +204,6 @@
         </form>
     </div>
 </div>
-
-@if(session('success'))
-    <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 18px; margin-bottom:1.5rem; color:#34d399; font-size:0.875rem; display:flex; align-items:center; gap:10px;">
-        <i class="fas fa-check-circle"></i> {{ session('success') }}
-    </div>
-@endif
-@if(session('error'))
-    <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px 18px; margin-bottom:1.5rem; color:#f87171; font-size:0.875rem; display:flex; align-items:center; gap:10px;">
-        <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-    </div>
-@endif
 
 {{-- ════════════════════════════════════════════════════
      ROW 1 — HERO STATUS PANEL

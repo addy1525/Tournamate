@@ -12,8 +12,8 @@ class AdminDashboardController extends Controller
      */
     public function index()
     {
-        // Participation Overview - Count of active teams
-        $activeTeamsCount = \App\Models\Team::count();
+        // Participation Overview - Count of active teams (registered for tournaments)
+        $activeTeamsCount = \App\Models\Team::has('registrations')->count();
         
         // Count of managers
         $managersCount = \App\Models\User::where('role', \App\Models\User::ROLE_MANAGER)->count();
@@ -32,11 +32,11 @@ class AdminDashboardController extends Controller
         // Count of spectators
         $spectatorsCount = \App\Models\User::where('role', \App\Models\User::ROLE_SPECTATOR)->count();
         
-        // Financial Summary
-        $totalRevenue = \App\Models\Team::sum('amount_paid');
-        $paidTeamsCount = \App\Models\Team::where('payment_status', 'paid')->count();
-        $partialTeamsCount = \App\Models\Team::where('payment_status', 'partial')->count();
-        $unpaidTeamsCount = \App\Models\Team::where('payment_status', 'unpaid')->count();
+        // Financial Summary (only from teams registered for tournaments)
+        $totalRevenue = \App\Models\Team::has('registrations')->sum('amount_paid');
+        $paidTeamsCount = \App\Models\Team::has('registrations')->where('payment_status', 'paid')->count();
+        $partialTeamsCount = \App\Models\Team::has('registrations')->where('payment_status', 'partial')->count();
+        $unpaidTeamsCount = \App\Models\Team::has('registrations')->where('payment_status', 'unpaid')->count();
 
         // Safety Widget Data
         $latestSafetyLog = \App\Models\SafetyLog::latest()->first();
@@ -52,8 +52,9 @@ class AdminDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Top ELO Rugby Teams (Leaderboard)
-        $topEloTeams = \App\Models\Team::orderBy('rating', 'desc')
+        // Top ELO Rugby Teams (Leaderboard) - only show registered teams
+        $topEloTeams = \App\Models\Team::has('registrations')
+            ->orderBy('rating', 'desc')
             ->limit(5)
             ->get();
 

@@ -32,6 +32,11 @@ class Team extends Model
         return $this->belongsTo(User::class, 'manager_id');
     }
 
+    public function registrations()
+    {
+        return $this->hasMany(TournamentRegistration::class);
+    }
+
     public function tournaments()
     {
         return $this->belongsToMany(Tournament::class, 'tournament_team');

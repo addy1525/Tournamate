@@ -136,6 +136,10 @@
                                     <span class="badge badge-success">
                                         <i class="fas fa-check-circle"></i> Paid
                                     </span>
+                                @elseif($registration->receipt_path)
+                                    <span class="badge badge-info" style="background: rgba(0, 212, 255, 0.15); color: var(--color-info); border: 1px solid rgba(0, 212, 255, 0.3);">
+                                        <i class="fas fa-file-invoice-dollar mr-1"></i> Verify Receipt
+                                    </span>
                                 @else
                                     <span class="badge badge-warning">
                                         <i class="fas fa-clock"></i> Pending
@@ -149,11 +153,83 @@
                                        class="btn btn-sm btn-primary" title="View Roster">
                                         <i class="fas fa-users"></i>
                                     </a>
+                                    @if($registration->receipt_path && $registration->payment_status !== 'paid')
+                                        <button type="button" class="btn btn-sm btn-success" title="Verify Payment"
+                                                data-toggle="modal" data-target="#verifyPaymentModal-{{ $registration->id }}">
+                                            <i class="fas fa-check-double mr-1"></i> Verify
+                                        </button>
+                                    @endif
                                     <a href="{{ route('manager.registrations.show', $registration->id) }}" 
                                        class="btn btn-sm btn-secondary" title="View Ticket">
                                         <i class="fas fa-ticket-alt"></i>
                                     </a>
                                 </div>
+
+                                @if($registration->receipt_path)
+                                    <!-- Verify Payment Modal -->
+                                    <div class="modal fade" id="verifyPaymentModal-{{ $registration->id }}" tabindex="-1" role="dialog" aria-labelledby="verifyPaymentModalLabel-{{ $registration->id }}" aria-hidden="true" style="z-index: 10000;">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff; text-align: left;">
+                                                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1.25rem 1.5rem;">
+                                                    <h5 class="modal-title font-weight-bold" id="verifyPaymentModalLabel-{{ $registration->id }}">
+                                                        <i class="fas fa-clipboard-check text-primary mr-2"></i>
+                                                        Verify Payment Receipt
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff; opacity: 0.7; border: none; background: transparent; font-size: 1.5rem;">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body" style="padding: 1.5rem;">
+                                                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+                                                        <table style="width: 100%; font-size: 0.85rem; color: rgba(255,255,255,0.85);">
+                                                            <tr>
+                                                                <td style="padding: 4px 0; color: rgba(255,255,255,0.45); width: 100px;">Team Name:</td>
+                                                                <td style="padding: 4px 0; font-weight: 700;">{{ $registration->team->name }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding: 4px 0; color: rgba(255,255,255,0.45);">Manager:</td>
+                                                                <td style="padding: 4px 0;">{{ $registration->manager->name }} ({{ $registration->manager->phone ?? 'N/A' }})</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding: 4px 0; color: rgba(255,255,255,0.45);">Fee Due:</td>
+                                                                <td style="padding: 4px 0; font-weight: 700; color: #34d399;">RM {{ number_format($tournament->fee ?? 250, 2) }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding: 4px 0; color: rgba(255,255,255,0.45);">Category:</td>
+                                                                <td style="padding: 4px 0;"><span class="badge badge-info">{{ $registration->registered_category ?: 'Open' }}</span></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+
+                                                    <div style="margin-bottom: 1.5rem; text-align: center;">
+                                                        <a href="{{ Storage::url($registration->receipt_path) }}" target="_blank" class="btn btn-secondary font-weight-bold" style="width: 100%; border: 1px dashed rgba(255,255,255,0.15); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                                            <i class="fas fa-file-pdf"></i> View Uploaded Receipt Document
+                                                        </a>
+                                                        <p style="font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 6px;">Click the button above to view or download the receipt in a new tab.</p>
+                                                    </div>
+
+                                                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                                        <form action="{{ route('admin.tournaments.registrations.verify-payment', [$tournament->id, $registration->id]) }}" method="POST" style="margin: 0; flex: 1;">
+                                                            @csrf
+                                                            <input type="hidden" name="action" value="reject">
+                                                            <button type="submit" class="btn btn-danger font-weight-bold" style="width: 100%;" onclick="return confirm('Are you sure you want to reject this payment receipt?');">
+                                                                <i class="fas fa-times-circle mr-1"></i> Reject
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <form action="{{ route('admin.tournaments.registrations.verify-payment', [$tournament->id, $registration->id]) }}" method="POST" style="margin: 0; flex: 1;">
+                                                            @csrf
+                                                            <input type="hidden" name="action" value="approve">
+                                                            <button type="submit" class="btn btn-success font-weight-bold" style="width: 100%; box-shadow: 0 4px 12px rgba(0, 168, 107, 0.2);" onclick="return confirm('Confirm payment approval?');">
+                                                                <i class="fas fa-check-circle mr-1"></i> Approve Payment
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

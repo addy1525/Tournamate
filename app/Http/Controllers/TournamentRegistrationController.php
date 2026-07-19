@@ -271,4 +271,32 @@ class TournamentRegistrationController extends Controller
 
         return view('manager.registrations.ticket', compact('registration'));
     }
+
+    /**
+     * Upload offline bank transfer receipt for registration
+     */
+    public function uploadReceipt(Request $request, $id)
+    {
+        $request->validate([
+            'receipt' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120', // 5MB max
+        ]);
+
+        $registration = TournamentRegistration::findOrFail($id);
+
+        if ($registration->manager_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $path = $request->file('receipt')->store('registrations/receipts', 'public');
+            
+            $registration->update([
+                'receipt_path' => $path,
+            ]);
+
+            return redirect()->back()->with('success', 'Receipt uploaded successfully! The organizer/admin will verify your payment shortly.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to upload receipt: ' . $e->getMessage());
+        }
+    }
 }

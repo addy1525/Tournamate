@@ -848,4 +848,60 @@ class TournamentController extends Controller
             
         return redirect()->back()->with('success', 'Fixtures have been published and are now visible to everyone.');
     }
+
+    /**
+     * Verify and update manual payment status for a registration
+     */
+    public function verifyPayment(Request $request, $tournamentId, $registrationId)
+    {
+        $request->validate([
+            'action' => 'required|in:approve,reject',
+        ]);
+
+        $tournament = \App\Models\Tournament::findOrFail($tournamentId);
+        $registration = \App\Models\TournamentRegistration::where('tournament_id', $tournamentId)
+            ->findOrFail($registrationId);
+
+        if ($request->action === 'approve') {
+            $fee = $tournament->fee ?? 250;
+
+            $registration->update([
+                'status' => \App\Models\TournamentRegistration::STATUS_CONFIRMED,
+                'payment_status' => \App\Models\TournamentRegistration::PAYMENT_PAID,
+                'amount_paid' => $fee,
+                'registered_at' => now(),
+            ]);
+
+            if ($registration->team) {
+                $registration->team->update([
+                    'payment_status' => \App\Models\Team::PAYMENT_STATUS_PAID,
+                    'amount_paid' => $fee,
+                ]);
+            }
+
+            return redirect()->back()->with('success', "Payment for team '{$registration->team->name}' has been approved and confirmed!");
+        } else {
+            $registration->update([
+                'payment_status' => \App\Models\TournamentRegistration::PAYMENT_FAILED,
+                'receipt_path' => null, // Clear the invalid receipt so they can re-upload
+            ]);
+
+            if ($registration->team) {
+                $registration->team->update([
+                    'payment_status' => \App\Models\Team::PAYMENT_STATUS_UNPAID,
+                ]);
+            }
+
+            // Send notification to the manager
+            try {
+                if ($registration->manager) {
+                    $registration->manager->notify(new \App\Notifications\PaymentRejectedNotification($tournament));
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to notify manager of payment rejection: ' . $e->getMessage());
+            }
+
+            return redirect()->back()->with('warning', "Payment for team '{$registration->team->name}' has been rejected. The manager has been notified.");
+        }
+    }
 }

@@ -45,6 +45,7 @@ class TournamentRegistration extends Model
         'payment_status',
         'amount_paid',
         'registered_at',
+        'receipt_path',
     ];
 
     protected $casts = [

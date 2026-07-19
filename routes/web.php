@@ -130,6 +130,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', App\Http\Middleware\
     Route::delete('/tournaments/{id}/fixtures/{fixtureId}', [App\Http\Controllers\Admin\TournamentController::class, 'deleteFixture'])->name('tournaments.deleteFixture');
     Route::put('/tournaments/{id}/fixtures/{fixtureId}', [App\Http\Controllers\Admin\TournamentController::class, 'updateFixture'])->name('tournaments.updateFixture');
     Route::get('/tournaments/{id}/registrations', [App\Http\Controllers\Admin\TournamentController::class, 'registrations'])->name('tournaments.registrations');
+    Route::post('/tournaments/{tournamentId}/registrations/{registrationId}/verify-payment', [App\Http\Controllers\Admin\TournamentController::class, 'verifyPayment'])->name('tournaments.registrations.verify-payment');
     Route::get('/tournaments/{tournamentId}/teams/{teamId}', [App\Http\Controllers\Admin\TournamentController::class, 'teamRoster'])->name('tournaments.teams.roster');
     Route::get('/teams', [App\Http\Controllers\Admin\TournamentController::class, 'teams'])->name('teams.index'); // Legacy view
 
@@ -199,6 +200,7 @@ Route::prefix('manager')->name('manager.')->middleware(['auth', App\Http\Middlew
     Route::post('/tournaments/{id}/register', [App\Http\Controllers\TournamentRegistrationController::class, 'store'])->name('tournaments.register.store');
     Route::post('/tournaments/{id}/checkout-session', [App\Http\Controllers\TournamentRegistrationController::class, 'createCheckoutSession'])->name('tournaments.checkout-session');
     Route::get('/registrations/{id}', [App\Http\Controllers\TournamentRegistrationController::class, 'show'])->name('registrations.show');
+    Route::post('/registrations/{id}/upload-receipt', [App\Http\Controllers\TournamentRegistrationController::class, 'uploadReceipt'])->name('registrations.upload-receipt');
 });
 
 // Referee Routes - Only accessible by Referee role

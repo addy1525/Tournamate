@@ -91,13 +91,13 @@
                             <!-- Controls -->
                             <div class="text-center">
                                 <div style="font-size: 1.5rem; color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-weight: 700; font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</div>
-                                <select name="status" class="form-control text-center mb-3 font-weight-bold" style="background: rgba(0,0,0,0.3); border: 1px solid var(--color-border); color: #fff; border-radius: 8px; height: 42px;">
-                                    <option value="scheduled" {{ $fixture->status == 'scheduled' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">Scheduled</option>
-                                    <option value="in_progress" {{ $fixture->status == 'in_progress' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">In Progress</option>
-                                    <option value="completed" {{ $fixture->status == 'completed' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">Completed</option>
+                                <select name="status" class="form-control text-center mb-3 font-weight-bold status-select-dropdown" onchange="handleStatusChange(this)" style="background: rgba(0,0,0,0.3); border: 1px solid var(--color-border); color: #fff; border-radius: 8px; height: 42px;">
+                                    <option value="scheduled" {{ $fixture->status == 'scheduled' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">Scheduled ⏳</option>
+                                    <option value="in_progress" {{ $fixture->status == 'in_progress' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">In Progress 🟢</option>
+                                    <option value="completed" {{ $fixture->status == 'completed' ? 'selected' : '' }} style="background: var(--color-bg-secondary);">Completed ✅</option>
                                 </select>
-                                <button type="submit" class="btn btn-primary btn-lg w-100" style="border-radius: 8px;">
-                                    <i class="fas fa-save mr-1"></i> Save Score
+                                <button type="submit" class="btn btn-primary btn-lg w-100 save-score-btn" style="border-radius: 8px; transition: all 0.3s ease;">
+                                    <i class="fas fa-save mr-1"></i> <span class="btn-text">Save Score</span>
                                 </button>
                             </div>
 
@@ -294,6 +294,33 @@
         };
 
         let currentSelectedFixtureId = null;
+
+        function handleStatusChange(selectEl) {
+            const btn = selectEl.form ? selectEl.form.querySelector('.save-score-btn') : null;
+            if (!btn) return;
+            const btnText = btn.querySelector('.btn-text');
+            const icon = btn.querySelector('i');
+
+            if (selectEl.value === 'completed') {
+                if (btnText) btnText.textContent = 'Save & Complete Match';
+                if (icon) icon.className = 'fas fa-check-circle mr-1';
+                btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+                btn.style.border = 'none';
+                btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)';
+            } else if (selectEl.value === 'in_progress') {
+                if (btnText) btnText.textContent = 'Save & Set Live';
+                if (icon) icon.className = 'fas fa-play-circle mr-1';
+                btn.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+                btn.style.border = 'none';
+                btn.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.4)';
+            } else {
+                if (btnText) btnText.textContent = 'Save Score';
+                if (icon) icon.className = 'fas fa-save mr-1';
+                btn.style.background = '';
+                btn.style.border = '';
+                btn.style.boxShadow = '';
+            }
+        }
 
         function showMatch(matchId) {
             currentSelectedFixtureId = matchId;

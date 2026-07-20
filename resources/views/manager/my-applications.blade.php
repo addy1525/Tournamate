@@ -42,7 +42,11 @@
                                         <i class="fas fa-trophy text-warning mr-2"></i>
                                         {{ $registration->tournament->name }}
                                     </td>
-                                    <td class="border-secondary" style="vertical-align: middle; font-size: 0.85rem;">{{ $registration->team->name }}</td>
+                                    <td class="border-secondary" style="vertical-align: middle; font-size: 0.85rem;">
+                                        <a href="{{ route('manager.teams.detail', $registration->team_id) }}" class="text-white font-weight-bold text-decoration-none" title="Manage Team Details & Roster" style="transition: color 0.2s;">
+                                            <i class="fas fa-shield-alt text-success mr-1"></i> {{ $registration->team->name }}
+                                        </a>
+                                    </td>
                                     <td class="border-secondary text-secondary" style="vertical-align: middle; font-size: 0.85rem;">{{ $registration->created_at->format('M d, Y') }}</td>
                                     <td class="border-secondary" style="vertical-align: middle;">
                                         @if($registration->payment_status === 'paid')
@@ -65,10 +69,14 @@
                                     </td>
                                     <td class="text-right pr-3 border-secondary" style="vertical-align: middle;">
                                         <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                                            <a href="{{ route('manager.teams.detail', $registration->team_id) }}"
+                                                class="btn btn-sm btn-primary font-weight-bold" style="border-radius: 6px; padding: 5px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #0084ff, #0056b3); border: none; box-shadow: 0 2px 6px rgba(0, 132, 255, 0.3);">
+                                                <i class="fas fa-users-cog mr-1"></i> Manage Team
+                                            </a>
                                             @if($registration->payment_status === 'paid')
                                                 <a href="{{ route('manager.registrations.show', $registration->id) }}"
                                                     class="btn btn-sm btn-outline-success" style="border-radius: 6px; padding: 5px 12px; font-size: 0.78rem;">
-                                                    <i class="fas fa-eye mr-1"></i> View Ticket
+                                                    <i class="fas fa-eye mr-1"></i> Ticket
                                                 </a>
                                             @else
                                                 @if(!$registration->receipt_path)

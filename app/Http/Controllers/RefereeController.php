@@ -49,9 +49,13 @@ class RefereeController extends Controller
 
         $fixture->update($request->only(['home_score', 'away_score', 'status']));
 
-        // If status changed to completed, update Elo ratings
+        // If status changed to completed, update Elo ratings safely
         if ($fixture->status === 'completed' && $oldStatus !== 'completed') {
-            $this->updateEloRating($fixture);
+            try {
+                $this->updateEloRating($fixture);
+            } catch (\Throwable $eloError) {
+                \Log::error('Failed to update Elo ratings: ' . $eloError->getMessage());
+            }
         }
 
         // Broadcast the real-time score update event
@@ -227,16 +231,20 @@ class RefereeController extends Controller
         $kFactor = 32;
         $newRatingA = $rA + ($kFactor * $multiplier * ($wA - $eA));
         $newRatingB = $rB + ($kFactor * $multiplier * ($wB - $eB));
-        // 5. Update team ratings in the database
-        $homeTeam->update(['rating' => (int) round($newRatingA)]);
-        $awayTeam->update(['rating' => (int) round($newRatingB)]);
+        // 5. Update team ratings in the database safely
+        try {
+            $homeTeam->update(['rating' => (int) round($newRatingA)]);
+            $awayTeam->update(['rating' => (int) round($newRatingB)]);
 
-        // 6. Record history in the fixture
-        $fixture->update([
-            'home_elo_before' => (int) $rA,
-            'away_elo_before' => (int) $rB,
-            'home_elo_after'  => (int) round($newRatingA),
-            'away_elo_after'  => (int) round($newRatingB),
-        ]);
+            // 6. Record history in the fixture
+            $fixture->update([
+                'home_elo_before' => (int) $rA,
+                'away_elo_before' => (int) $rB,
+                'home_elo_after'  => (int) round($newRatingA),
+                'away_elo_after'  => (int) round($newRatingB),
+            ]);
+        } catch (\Throwable $ex) {
+            \Log::error('Elo database update error: ' . $ex->getMessage());
+        }
     }
 }

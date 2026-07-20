@@ -21,7 +21,16 @@ class TeamController extends Controller
     public function create()
     {
         $managers = User::where('role', User::ROLE_MANAGER)->get();
-        return view('admin.teams.create', compact('managers'));
+        $tournaments = \App\Models\Tournament::whereIn('status', [
+            \App\Models\Tournament::STATUS_UPCOMING,
+            \App\Models\Tournament::STATUS_ONGOING
+        ])->get();
+
+        if ($tournaments->isEmpty()) {
+            $tournaments = \App\Models\Tournament::all();
+        }
+
+        return view('admin.teams.create', compact('managers', 'tournaments'));
     }
 
     public function store(Request $request)
@@ -31,22 +40,45 @@ class TeamController extends Controller
             'manager_id' => 'required|exists:users,id',
             'phone_number' => 'required|string',
             'logo' => 'nullable|image|max:2048',
+            'tournament_id' => 'required|exists:tournaments,id',
+            'registered_category' => 'required|string|max:255',
+            'payment_status' => 'required|in:pending,paid',
+            'amount_paid' => 'nullable|numeric|min:0',
         ]);
 
-        $data = $request->except('logo');
+        $manager = User::findOrFail($request->manager_id);
+        $tournament = \App\Models\Tournament::findOrFail($request->tournament_id);
+        $fee = $tournament->fee ?? 250;
+
+        $isPaid = $request->payment_status === 'paid';
+        $amountPaid = $isPaid ? ($request->amount_paid ?? $fee) : ($request->amount_paid ?? 0);
+
+        $data = $request->except('logo', 'tournament_id', 'registered_category', 'payment_status', 'amount_paid');
 
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('teams/logos', 'public');
             $data['logo'] = $path;
         }
 
-        // Fetch manager name for legacy support
-        $manager = User::find($request->manager_id);
         $data['manager_name'] = $manager->name;
+        $data['manager_id'] = $manager->id;
+        $data['payment_status'] = $isPaid ? Team::PAYMENT_STATUS_PAID : Team::PAYMENT_STATUS_UNPAID;
+        $data['amount_paid'] = $amountPaid;
 
-        Team::create($data);
+        $team = Team::create($data);
 
-        return redirect()->route('admin.teams.index')->with('success', 'Team created successfully.');
+        \App\Models\TournamentRegistration::create([
+            'tournament_id' => $tournament->id,
+            'team_id' => $team->id,
+            'manager_id' => $manager->id,
+            'registered_category' => $request->registered_category,
+            'status' => $isPaid ? \App\Models\TournamentRegistration::STATUS_CONFIRMED : \App\Models\TournamentRegistration::STATUS_REGISTERING,
+            'payment_status' => $isPaid ? \App\Models\TournamentRegistration::PAYMENT_PAID : \App\Models\TournamentRegistration::PAYMENT_PENDING,
+            'amount_paid' => $amountPaid,
+            'registered_at' => now(),
+        ]);
+
+        return redirect()->route('teams.index')->with('success', "Team '{$team->name}' created and registered for {$tournament->name} successfully.");
     }
 
     public function edit($id)

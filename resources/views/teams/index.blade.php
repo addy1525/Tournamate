@@ -30,11 +30,9 @@
                     @endif
                 </p>
             </div>
-            @if(!auth()->user() || auth()->user()->role !== \App\Models\User::ROLE_ADMIN)
-                <a href="{{ route('teams.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add New Team
-                </a>
-            @endif
+            <a href="{{ route('teams.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Team
+            </a>
         </div>
         <div class="card-body">
             <div class="table-wrapper">

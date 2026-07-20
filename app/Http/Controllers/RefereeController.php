@@ -47,7 +47,10 @@ class RefereeController extends Controller
 
         $oldStatus = $fixture->status;
 
-        $fixture->update($request->only(['home_score', 'away_score', 'status']));
+        $fixture->home_score = (int) ($request->home_score ?? 0);
+        $fixture->away_score = (int) ($request->away_score ?? 0);
+        $fixture->status     = (string) $request->status;
+        $fixture->save();
 
         // If status changed to completed, update Elo ratings safely
         if ($fixture->status === 'completed' && $oldStatus !== 'completed') {
@@ -61,9 +64,8 @@ class RefereeController extends Controller
         // Broadcast the real-time score update event
         try {
             broadcast(new ScoreUpdated($fixture))->toOthers();
-        } catch (\Exception $e) {
-            // Log warning or exception, fallback gracefully
-            report($e);
+        } catch (\Throwable $e) {
+            \Log::error('Score broadcast error: ' . $e->getMessage());
         }
 
         return redirect()->route('referee.console', ['fixture_id' => $fixture->id])

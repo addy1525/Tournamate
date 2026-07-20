@@ -439,6 +439,11 @@
                 });
             }
 
+            // Initialize status dropdown button state for all matches
+            document.querySelectorAll('.status-select-dropdown').forEach(select => {
+                handleStatusChange(select);
+            });
+
             // Auto trigger showMatch if a fixture_id was passed back (e.g. after save)
             const matchSelect = document.getElementById('match-select');
             if (matchSelect && matchSelect.value) {

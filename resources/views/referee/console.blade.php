@@ -329,9 +329,19 @@
             document.querySelectorAll('.match-card').forEach(card => {
                 card.style.display = 'none';
             });
+
+            // Sync top dropdown selection
+            const matchSelect = document.getElementById('match-select');
+            if (matchSelect && matchId) {
+                matchSelect.value = matchId;
+            }
+
             // Show selected match card
             if(matchId) {
-                document.getElementById('match-card-' + matchId).style.display = 'block';
+                const card = document.getElementById('match-card-' + matchId);
+                if (card) {
+                    card.style.display = 'block';
+                }
             }
 
             // Update safety alert banner for the selected match's tournament
@@ -445,14 +455,15 @@
             });
 
             // Auto trigger showMatch if a fixture_id was passed back (e.g. after save)
-            const matchSelect = document.getElementById('match-select');
-            if (matchSelect && matchSelect.value) {
-                showMatch(matchSelect.value);
-            } else {
-                @if(isset($selectedFixtureId) && $selectedFixtureId)
-                    showMatch('{{ $selectedFixtureId }}');
-                @endif
-            }
+            @if(isset($selectedFixtureId) && $selectedFixtureId)
+                showMatch('{{ $selectedFixtureId }}');
+            @else
+                const matchSelect = document.getElementById('match-select');
+                if (matchSelect && matchSelect.options.length > 1) {
+                    matchSelect.selectedIndex = 1;
+                    showMatch(matchSelect.value);
+                }
+            @endif
         });
     </script>
 @endpush

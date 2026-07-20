@@ -20,7 +20,7 @@ class RefereeMiddleware
             return redirect()->route('login')->with('error', 'Please login to access this page.');
         }
 
-        if (!auth()->user()->isReferee()) {
+        if (!auth()->user()->isReferee() && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized. Referee access only.');
         }
 

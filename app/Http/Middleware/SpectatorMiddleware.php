@@ -20,7 +20,7 @@ class SpectatorMiddleware
             return redirect()->route('login')->with('error', 'Please login to access this page.');
         }
 
-        if (!auth()->user()->isSpectator()) {
+        if (!auth()->user()->isSpectator() && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized. Spectator access only.');
         }
 
